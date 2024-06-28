@@ -7,5 +7,7 @@ Simple appscript to clean gmail. No server, no cost. all free.
 4. Go to https://docs.google.com/spreadsheets , Create a new workbook with name "EmailConfig"
 5. Add a sheet in above workbook with name "filter"
 6. You can refer : https://docs.google.com/spreadsheets/d/e/2PACX-1vRdRA-gIGPU7d7JUS4jhAsiFwGJdvgeoiq08hAGpV8U5h2BP7nMRp6MZIYia-6q-fkpeLIkk5Ddt256/pubhtml
-7. Run the script
-8. Schedule script as required
+7. In code.gs, replace value of spreadsheetId by sheet id (https://docs.google.com/spreadsheets/d/<sheetId>) from sheet URL.
+8. Run the script
+9. It will ask for permissions, allow it. 
+10. Schedule script as required
