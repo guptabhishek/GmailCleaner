@@ -2,7 +2,7 @@ var BATCH_SIZE = 8;
 var SLEEP_DURATION = 1000; // 1 second
 
 function getEmailSearchCriteriaFromSheet() {
-  var spreadsheetId = '####EnterSheetId here###'
+  var spreadsheetId = '###########'
   var sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName('filter');
   var data = sheet.getDataRange().getValues();
   
@@ -12,9 +12,10 @@ function getEmailSearchCriteriaFromSheet() {
     var row = data[i];
     var criteria = {
       sender: row[0],
-      months: row[1],
+      days: row[1],
       subject: row[2] ? row[2] : null,
-      excludedText: row[3] ? row[3] : null
+      includedText: row[3] ? row[3] : null,
+      excludedText: row[4] ? row[4] : null
     };
     emailCriteria.push(criteria);
   }
@@ -28,25 +29,31 @@ function cleanEmailsBySenderAndMonths() {
 
   // Iterate through each email criteria
   emailCriteria.forEach(function(criteria) {
-    var monthsToDelete = criteria.months;
+    var daysToDelete = criteria.days;
     var senderEmail = criteria.sender;
     var subjectFilter = criteria.subject;
     var excludedText = criteria.excludedText;
+    var includedText = criteria.includedText;
 
-    // Calculate the date threshold (monthsToDelete months ago from today)
+  
     var olderThanDate = new Date();
-    olderThanDate.setMonth(today.getMonth() - monthsToDelete);
+    olderThanDate.setDate(today.getDate() - daysToDelete);
     var olderThanDateString = Utilities.formatDate(olderThanDate, Session.getScriptTimeZone(), "yyyy/MM/dd");
 
-    // Construct search query
     var searchQuery = "from:" + senderEmail + " before:" + olderThanDateString;
+    
+    // Adjust for exact phrase match in subject
     if (subjectFilter) {
-      searchQuery += " subject:" + subjectFilter;
-    }
-    if (excludedText) {
-      searchQuery += " -" + excludedText;
+      searchQuery += ' subject:"' + subjectFilter + '"';
     }
 
+    if (includedText && excludedText) {
+      searchQuery += " " + includedText + " -" + excludedText;
+    } else if (includedText) {
+      searchQuery += " " + includedText;
+    } else if (excludedText) {
+      searchQuery += " -" + excludedText;
+    }
     // Search for threads matching the criteria
     var threads = GmailApp.search(searchQuery);
       Logger.log("Deleting :" + threads.length +" messages from : " + senderEmail);
